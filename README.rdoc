@@ -1,0 +1,70 @@
+= Introspective Monitoring
+
+Enough with active checks! Make your service advertise its state to Nagios.
+
+= HOWTO
+
+1. Define your service check by implementing com.ning.nagios.ServiceCheck
+2. Configure how your service talks to Nagios by implementing com.ning.nagios.ServiceMonitor
+
+For example, assuming you have a Config object:
+
+    public class NagiosMonitor implements ServiceMonitor
+    {
+        private static final Logger log = Logger.getLogger(NagiosMonitor.class);
+
+        private final ConcurrentMap<String, MonitoredService> services = new ConcurrentHashMap<String, MonitoredService>();
+        private final PassiveCheckSender sender;
+        private final MessagePayloadBuilder payloadBuilder;
+        private final TimeSpan checkRate;
+
+        @Inject
+        public NagiosMonitor(final Config config)
+        {
+            this.sender = new NagiosPassiveCheckSender(new NagiosSettingsBuilder()
+                .withNagiosHost(config.getNagiosHost())
+                .withPort(config.getNagiosPort())
+                .withEncryption(config.getNagiosEncryption())
+                .withPassword(config.getNagiosPassword())
+                .withConnectionTimeout((int) config.getNagiosTimeout().getMillis())
+                .withResponseTimeout((int) config.getNagiosTimeout().getMillis())
+                .create());
+            this.payloadBuilder = new MessagePayloadBuilder().withHostname(config.getNagiosReportedHostname());
+            this.checkRate = config.getNagiosCheckRate();
+        }
+
+        @Override
+        public MonitoredService registerServiceCheck(final String serviceName, final ServiceCheck check)
+        {
+            final MonitoredService service = new JsendnscaService(serviceName, checkRate, check, sender, payloadBuilder);
+            final MonitoredService existingService = services.putIfAbsent(serviceName, service);
+
+            if (existingService != null) {
+                throw new IllegalStateException(String.format("Service check [%s] has already been registered", serviceName));
+            }
+
+            log.info(String.format("Added service [%s] with check rate of [%s]", service, checkRate));
+
+            return service;
+        }
+    }
+
+Note: the library comes with com.ning.nagios.FakeNagiosMonitor for testing.
+
+3. Register the check with your ServiceMonitor
+
+= License (see LICENSE-2.0.txt file for full license)
+
+Copyright 2011 Ning
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
