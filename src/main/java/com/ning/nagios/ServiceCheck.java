@@ -38,12 +38,34 @@ public interface ServiceCheck
             return new Status(Level.OK, message);
         }
 
+        /**
+         * You meant to call {@link #ok(String)}.
+         *
+         * @param message message to log
+         */
+        @Deprecated
+        public static Status okf(final String message)
+        {
+            return new Status(Level.OK, message);
+        }
+
         public static Status okf(final String format, final Object... args)
         {
             return new Status(Level.OK, String.format(format, args));
         }
 
         public static Status warning(final String message)
+        {
+            return new Status(Level.WARNING, message);
+        }
+
+        /**
+         * You meant to call {@link #warning(String)}.
+         *
+         * @param message message to log
+         */
+        @Deprecated
+        public static Status warningf(final String message)
         {
             return new Status(Level.WARNING, message);
         }
@@ -58,12 +80,34 @@ public interface ServiceCheck
             return new Status(Level.CRITICAL, message);
         }
 
+        /**
+         * You meant to call {@link #critical(String)}.
+         *
+         * @param message message to log
+         */
+        @Deprecated
+        public static Status criticalf(final String message)
+        {
+            return new Status(Level.CRITICAL, message);
+        }
+
         public static Status criticalf(final String format, final Object... args)
         {
             return new Status(Level.CRITICAL, String.format(format, args));
         }
 
         public static Status unknown(final String message)
+        {
+            return new Status(Level.UNKNOWN, message);
+        }
+
+        /**
+         * You meant to call {@link #unknown(String)}.
+         *
+         * @param message message to log
+         */
+        @Deprecated
+        public static Status unknownf(final String message)
         {
             return new Status(Level.UNKNOWN, message);
         }
