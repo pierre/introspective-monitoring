@@ -6,6 +6,7 @@ Enough with active checks! Make your service advertise its state to Nagios.
 
 1. Define your service check by implementing com.ning.nagios.ServiceCheck
 2. Configure how your service talks to Nagios by implementing com.ning.nagios.ServiceMonitor
+3. Register the check with your ServiceMonitor
 
 For example, assuming you have a Config object:
 
@@ -49,9 +50,14 @@ For example, assuming you have a Config object:
         }
     }
 
-Note: the library comes with com.ning.nagios.FakeNagiosMonitor for testing.
+You can now do
 
-3. Register the check with your ServiceMonitor
+    // Talk to Nagios
+    final ServiceCheck check = injector.getInstance(ServiceCheck.class);
+    final ServiceMonitor serviceMonitor = injector.getInstance(ServiceMonitor.class);
+    serviceMonitor.registerServiceCheck(config.getNagiosServiceName(), check);
+
+Note: the library comes with com.ning.nagios.FakeNagiosMonitor for testing.
 
 = License (see LICENSE-2.0.txt file for full license)
 
