@@ -16,12 +16,9 @@
 
 package com.ning.nagios;
 
-import com.google.inject.Inject;
 import org.apache.log4j.Logger;
 import org.skife.config.TimeSpan;
-import org.weakref.jmx.MBeanExporter;
 
-import java.lang.management.ManagementFactory;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
@@ -38,18 +35,9 @@ public class FakeNagiosMonitor implements ServiceMonitor
     private final ConcurrentMap<String, MonitoredService> services = new ConcurrentHashMap<String, MonitoredService>();
     private final TimeSpan checkRate;
 
-    private volatile MBeanExporter mbeanExporter = new MBeanExporter(ManagementFactory.getPlatformMBeanServer());
-
-    @Inject
     public FakeNagiosMonitor(final TimeSpan checkRate)
     {
         this.checkRate = checkRate;
-    }
-
-    @Inject(optional = true)
-    public void setMbeanExporter(final MBeanExporter mbeanExporter)
-    {
-        this.mbeanExporter = mbeanExporter;
     }
 
     @Override
@@ -63,10 +51,6 @@ public class FakeNagiosMonitor implements ServiceMonitor
         }
 
         log.info(String.format("Added service [%s] with check rate of [%s]", service, checkRate));
-
-        if (mbeanExporter != null) {
-            mbeanExporter.export(String.format("%s:name=%s", getClass().getPackage().getName(), serviceName), check);
-        }
 
         return service;
     }
