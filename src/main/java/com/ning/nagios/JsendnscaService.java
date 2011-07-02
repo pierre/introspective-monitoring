@@ -35,7 +35,7 @@ public class JsendnscaService implements MonitoredService, Runnable
     private final String serviceName;
     private final ServiceCheck check;
     private final PassiveCheckSender sender;
-    private final MessagePayloadBuilder payloadBuilder;
+    private final String hostname;
     private final ScheduledExecutorService executor;
     private final TimeSpan checkRate;
 
@@ -45,7 +45,8 @@ public class JsendnscaService implements MonitoredService, Runnable
         this.checkRate = checkRate;
         this.check = check;
         this.sender = sender;
-        this.payloadBuilder = payloadBuilder.withServiceName(serviceName);
+        // beware: payloadBuilder is not threadsafe, so can't just call withServiceName and be done with it
+        this.hostname = payloadBuilder.create().getHostname();
         this.executor = Executors.newScheduledThreadPool(1);
         this.executor.submit(this);
     }
@@ -93,10 +94,7 @@ public class JsendnscaService implements MonitoredService, Runnable
         }
 
         try {
-            final MessagePayload payload = payloadBuilder
-                .withLevel(status.getLevel())
-                .withMessage(status.getMessage())
-                .create();
+            final MessagePayload payload = new MessagePayload(hostname, status.getLevel(), serviceName, status.getMessage());
 
             sender.send(payload);
         }
