@@ -16,12 +16,12 @@
 
 package com.ning.nagios;
 
+import com.mogwee.executors.Executors;
 import org.apache.log4j.Logger;
 import org.skife.config.TimeSpan;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -69,7 +69,7 @@ public class FakeNagiosMonitor implements ServiceMonitor
             this.serviceName = serviceName;
             this.checkRate = checkRate;
             this.check = check;
-            this.executor = Executors.newScheduledThreadPool(1);
+            this.executor = Executors.newScheduledThreadPool(1, "FakeNagiosReporter");
             this.executor.submit(this);
         }
 

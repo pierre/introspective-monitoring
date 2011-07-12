@@ -20,11 +20,11 @@ import com.googlecode.jsendnsca.MessagePayload;
 import com.googlecode.jsendnsca.NagiosException;
 import com.googlecode.jsendnsca.PassiveCheckSender;
 import com.googlecode.jsendnsca.builders.MessagePayloadBuilder;
+import com.mogwee.executors.Executors;
 import org.apache.log4j.Logger;
 import org.skife.config.TimeSpan;
 
 import java.io.IOException;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -47,7 +47,7 @@ public class JsendnscaService implements MonitoredService, Runnable
         this.sender = sender;
         // beware: payloadBuilder is not threadsafe, so can't just call withServiceName and be done with it
         this.hostname = payloadBuilder.create().getHostname();
-        this.executor = Executors.newScheduledThreadPool(1);
+        this.executor = Executors.newScheduledThreadPool(1, "NSCANagiosReporter");
         this.executor.submit(this);
     }
 
